@@ -511,3 +511,22 @@ class NetworkTestCase(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
+
+def test_allowance_specificity():
+    """Test that more specific rules take precedence over less specific ones.
+    
+    Regression test for https://github.com/python/cpython/issues/148951
+    """
+    from urllib.robotparser import RobotFileParser
+    
+    rp = RobotFileParser()
+    rp.parse([
+        'User-agent: *',
+        'Disallow: /wp-admin/',
+        'Allow: /wp-admin/admin-ajax.php',
+    ])
+    
+    assert rp.can_fetch('GoogleBot', 'https://example.com/wp-admin/') is False
+    assert rp.can_fetch('GoogleBot', 'https://example.com/wp-admin/admin-ajax.php') is True
+    assert rp.can_fetch('GoogleBot', 'https://example.com/other') is True

@@ -282,7 +282,8 @@ class Entry:
         """Preconditions:
         - our agent applies to this entry
         - filename is URL encoded"""
-        for line in self.rulelines:
+        # Most specific path first (longest prefix wins)
+        for line in sorted(self.rulelines, key=lambda r: len(r.path), reverse=True):
             if line.applies_to(filename):
                 return line.allowance
         return True
